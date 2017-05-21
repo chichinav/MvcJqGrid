@@ -16,6 +16,7 @@ namespace MvcJqGrid
     public class Grid : IHtmlString
     {
         private readonly List<Column> _columns = new List<Column>();
+        private groupingView _groupview;
         private readonly string _id;
         private string _altClass;
         private bool? _altRows;
@@ -101,6 +102,7 @@ namespace MvcJqGrid
         private bool _stringResult = true;        
         private bool? _ignoreCase;
         private string _rowAttr;
+        private bool? _grouping;
 
         /// <summary>
         ///     Constructor
@@ -1184,6 +1186,20 @@ namespace MvcJqGrid
         }
 
 
+        //Realizado por Libardo Navarro Barrios
+        public Grid SetGrouping(bool grouping)
+        {
+            _grouping = grouping;
+            return this;
+        }
+
+        public Grid SetGroupingView(groupingView groupview)
+        {
+            _groupview = groupview;
+            return this;
+        } 
+
+
         public string RenderJavascript()
         {
             // Create javascript
@@ -1579,6 +1595,19 @@ namespace MvcJqGrid
             var colModel = string.Join(",", ((from c in _columns select c.ToString()).ToArray()));
             script.AppendLine(colModel);
             script.AppendLine("]");
+
+            //Agregado por Libardo Navarro Barrios
+            // Grouping
+            if (_grouping.HasValue)
+            {
+                script.Append(",").AppendLine();
+                script.AppendFormat("grouping:{0}", _grouping.ToString().ToLower()).AppendLine();
+                if (_groupview != null)
+                {
+                    script.Append(",").AppendLine();
+                    script.AppendFormat("groupingView:{0}", _groupview.ToString()).AppendLine();
+                }
+            }
 
             // End jqGrid call
             script.AppendLine("});");

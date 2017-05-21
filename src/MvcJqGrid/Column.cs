@@ -39,6 +39,8 @@ namespace MvcJqGrid
         private EditRules _editRules;
         private EditFormOptions _editFormOptions;
         private SortType? _sortType;
+        private string _summaryTpl;
+        private string _summaryType;
                 
         /// <summary>
         ///     Constructor
@@ -53,7 +55,7 @@ namespace MvcJqGrid
             }
 
             // Make sure columnname is not part of the reserved names collection
-            var reservedNames = new[] {"subgrid", "cb", "rn"};
+            var reservedNames = new[] { "subgrid", "cb", "rn" };
 
             if (reservedNames.Contains(columnName))
             {
@@ -444,7 +446,8 @@ namespace MvcJqGrid
 
         internal string SearchOption
         {
-            get {
+            get 
+            {
                 return _searchOptions.Any() 
                     ? _searchOptions.First()
                     : "bw";
@@ -517,6 +520,31 @@ namespace MvcJqGrid
         }
 
         /// <summary>
+        /// summary property to each field if grouping is enabled
+        /// SetSummaryTpl must be called for this to be respected.
+        /// </summary>
+        /// <param name="summaryTpl"></param>
+        /// <returns></returns>
+        public Column SetSummaryTpl(string summaryTpl)
+        {
+            _summaryTpl = summaryTpl;
+            return this;
+        }
+
+
+        /// <summary>
+        /// summary Type property to each field if grouping is enabled
+        /// SetSummaryType must be called for this to be respected.
+        /// </summary>
+        /// <param name="summaryType"></param>
+        /// <returns></returns>
+        public Column SetSummaryType(string summaryType)
+        {
+            _summaryType = summaryType;
+            return this;
+        }
+
+        /// <summary>
         ///     Creates javascript string from column to be included in grid javascript
         /// </summary>
         /// <returns></returns>
@@ -585,7 +613,7 @@ namespace MvcJqGrid
                         
             // Editable
             if (_editable.HasValue)
-                script.AppendFormat("editable:{0},",_editable.Value.ToString().ToLower()).AppendLine();
+                script.AppendFormat("editable:{0},", _editable.Value.ToString().ToLower()).AppendLine();
 
             // Setup search options
             var searchOptions = new Dictionary<string, string>();
@@ -666,7 +694,7 @@ namespace MvcJqGrid
                 script.AppendLine("searchoptions: { " + string.Join(", ", searchOptions.Select(x => x.Key + ":" + x.Value)) + " },");
 
             //edit type
-            if(_editType.HasValue)
+            if (_editType.HasValue)
                 script.AppendFormat("edittype:'{0}',", _editType.Value.ToString().ToLower()).AppendLine();
 
             //edit options
@@ -674,11 +702,11 @@ namespace MvcJqGrid
                 script.AppendFormat("editoptions:{0},", _editOptions.ToString()).AppendLine();
 
             //edit rules
-            if(_editRules != null)
+            if (_editRules != null)
                 script.AppendFormat("editrules:{0},", _editRules.ToString()).AppendLine();
                 
             //edit form options
-            if(_editFormOptions != null)
+            if (_editFormOptions != null)
                 script.AppendFormat("formoptions:{0},", _editFormOptions.ToString()).AppendLine();
 
            if (_sortType.HasValue)
@@ -686,6 +714,18 @@ namespace MvcJqGrid
 
            // Index
            script.AppendFormat("index:'{0}'", _index).AppendLine();
+
+           if (!_summaryTpl.IsNullOrWhiteSpace())
+           {
+               script.Append(",").AppendLine();
+               script.AppendFormat("summaryTpl:'{0}'", _summaryTpl);
+           }
+
+           if (!_summaryType.IsNullOrWhiteSpace())
+           {
+               script.Append(",").AppendLine();
+               script.AppendFormat("summaryType:'{0}'", _summaryType);
+           }
           
             // End column
             script.Append("}");
